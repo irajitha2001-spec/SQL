@@ -1,0 +1,20 @@
+WITH FirstLogin AS (
+    SELECT 
+        player_id,
+        MIN(event_date) AS first_login
+    FROM Activity
+    GROUP BY player_id
+),
+NextDayLogin AS (
+    SELECT 
+        f.player_id
+    FROM FirstLogin f
+    JOIN Activity a 
+        ON f.player_id = a.player_id
+        AND a.event_date = DATEADD(day, 1, f.first_login)
+)
+SELECT 
+    ROUND(
+        CAST((SELECT COUNT(*) FROM NextDayLogin) AS float) /
+        CAST((SELECT COUNT(*) FROM FirstLogin) AS float)
+    , 2) AS fraction;
