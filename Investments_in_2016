@@ -1,0 +1,17 @@
+SELECT 
+    ROUND(SUM(i.tiv_2016), 2) AS tiv_2016
+FROM Insurance i
+WHERE 
+    -- Condition 1: tiv_2015 appears more than once
+    i.tiv_2015 IN (
+        SELECT tiv_2015
+        FROM Insurance
+        GROUP BY tiv_2015
+        HAVING COUNT(*) > 1
+    )
+    AND 
+    -- Condition 2: (lat, lon) pair is unique in the table
+    (SELECT COUNT(*) 
+     FROM Insurance x
+     WHERE x.lat = i.lat AND x.lon = i.lon
+    ) = 1;
